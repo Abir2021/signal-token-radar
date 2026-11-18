@@ -1,5 +1,5 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { boardIssue, buildData, buildRadar, parseSnapshot } from './lib/model.ts';
 import { buildDossier } from './vendor/makefun-board.ts';
@@ -9,6 +9,11 @@ const TEXT_MAX_BYTES = 65_536;
 const IMAGE_CAPS = { max: 4, max_bytes: 524_288 };
 const NAME = /^[A-Za-z0-9_][A-Za-z0-9._-]{0,127}$/;
 
+function isWithin(parent: string, candidate: string): boolean {
+  const rel = relative(resolve(parent), resolve(candidate));
+  return rel === '' || (rel !== '..' && !rel.startsWith(`..${sep}`) && !isAbsolute(rel));
+}
+
 function arg(name: string, fallback: string): string {
   const i = process.argv.indexOf(`--${name}`);
   if (i >= 0 && process.argv[i + 1]) return process.argv[i + 1]!;
@@ -17,12 +22,21 @@ function arg(name: string, fallback: string): string {
 }
 
 const inputArg = arg('input', '/input');
-const inputFile = inputArg.endsWith('.json') ? inputArg : join(inputArg, 'snapshot.json');
+const inputFile = resolve(inputArg.endsWith('.json') ? inputArg : join(inputArg, 'snapshot.json'));
 if (!existsSync(inputFile)) {
   process.stderr.write(`token radar: snapshot not found at ${inputFile}; pass --input <file-or-directory>\n`);
   process.exit(2);
 }
-const out = arg('output', process.env.MAKEFUN_OUTPUT_DIR ?? '/output');
+const out = resolve(arg('output', process.env.MAKEFUN_OUTPUT_DIR ?? '/output'));
+const protectedPaths = ['main.ts', 'lib', 'dashboard', 'screenshots', 'vendor'].map((p) => join(root, p));
+if (protectedPaths.some((p) => isWithin(p, out) || isWithin(out, p))) {
+  process.stderr.write('token radar: refusing output that overlaps source files; choose a separate directory\n');
+  process.exit(2);
+}
+if (isWithin(out, inputFile)) {
+  process.stderr.write('token radar: refusing output that contains the input snapshot; choose a separate directory\n');
+  process.exit(2);
+}
 const snapshot = parseSnapshot(readFileSync(inputFile, 'utf8'));
 const { board, live } = buildRadar(snapshot);
 const issue = boardIssue(board, snapshot);
