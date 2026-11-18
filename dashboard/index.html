@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Signal / Token Radar</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Signal Token Radar home">
+        <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="brand-name">SIGNAL<span>/</span>RADAR</span>
+      </a>
+      <div class="topbar-note"><span class="live-dot"></span> SNAPSHOT MODE <b id="snapshotDate">—</b></div>
+      <button class="method-link" id="methodToggle" type="button">How we score <span>↗</span></button>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="overline"><span class="overline-line"></span> TOKENLESS PROTOCOLS · ONE SEALED SNAPSHOT</p>
+          <h1>Find the signal<br>before the <em>ticker.</em></h1>
+          <p class="hero-intro">A ranked watchlist for protocols with no token recorded. TVL sets the scale; growth and time in market shape the signal. A research screen, not a token forecast.</p>
+          <div class="hero-pills"><span>NO PRICE PROMISES</span><span>NO LIVE NETWORK CALLS</span><span id="sourceStamp">DATA DATE —</span></div>
+        </div>
+        <div class="hero-visual" aria-label="Snapshot summary">
+          <div class="visual-top"><span>UNIVERSE SCAN</span><span class="scan-id">SR / 02</span></div>
+          <div class="scan-line"></div>
+          <div class="visual-main"><div class="visual-number" id="watchCount">—</div><div class="visual-label">WATCHLIST<br>PROTOCOLS</div></div>
+          <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div><div class="orbit-core"></div>
+          <div class="visual-foot"><span><b id="earlyCount">—</b> early candidates</span><span><b id="liveCount">—</b> tokens tracked separately</span></div>
+          <svg class="hero-spark" viewBox="0 0 300 66" preserveAspectRatio="none" aria-hidden="true"><path d="M0 54 L22 46 L42 49 L62 29 L82 36 L103 20 L124 28 L145 12 L166 24 L188 17 L208 31 L228 18 L251 24 L274 8 L300 13"/><path class="spark-fill" d="M0 54 L22 46 L42 49 L62 29 L82 36 L103 20 L124 28 L145 12 L166 24 L188 17 L208 31 L228 18 L251 24 L274 8 L300 13 L300 66 L0 66 Z"/></svg>
+        </div>
+      </section>
+
+      <section class="thesis-row">
+        <div class="thesis-title"><span class="section-index">01</span><span>THE RADAR</span></div>
+        <div class="thesis-copy">The watchlist is the floor. We add smaller tokenless protocols below $50M TVL, then rank the board by a transparent, name-blind heuristic.</div>
+        <div class="snapshot-stamp"><span class="stamp-dot"></span> SEALED INPUT <strong id="floorStamp">$50M FLOOR</strong></div>
+      </section>
+
+      <section class="workspace" aria-label="Token launch radar workspace">
+        <aside class="filters" aria-label="Board filters">
+          <div class="filters-head"><div><span class="section-index">02</span><h2>Refine the board</h2></div><button id="resetFilters" class="reset-btn" type="button">Reset</button></div>
+          <label class="field-label" for="searchInput">Search protocols</label>
+          <div class="search-wrap"><span class="search-icon" aria-hidden="true">⌕</span><input id="searchInput" type="search" placeholder="Name, chain, category…" autocomplete="off"></div>
+          <label class="field-label" for="categorySelect">Sector</label>
+          <select id="categorySelect"><option>All sectors</option></select>
+          <label class="field-label" for="chainSelect">Chain</label>
+          <select id="chainSelect"><option>All chains</option></select>
+          <div class="filter-divider"></div>
+          <div class="toggle-row"><div><b>Floor watchlist</b><small>House screen · $50M+</small></div><label class="switch"><input id="watchOnly" type="checkbox"><span></span></label></div>
+          <div class="toggle-row"><div><b>Early radar</b><small>Below the floor</small></div><label class="switch"><input id="earlyOnly" type="checkbox" checked><span></span></label></div>
+          <div class="filter-divider"></div>
+          <div class="side-note"><span class="note-mark">i</span><p>“No token recorded” means the snapshot has no market cap, symbol or CoinGecko ID. It is not proof that a token does not exist.</p></div>
+          <button class="method-card" id="methodCard" type="button"><span class="method-icon">ƒ</span><span><b>Open the model notes</b><small>Inputs, caps & caveats</small></span><span class="arrow">↗</span></button>
+        </aside>
+
+        <section class="board-area">
+          <div class="board-header">
+            <div class="board-title-wrap"><div class="board-kicker"><span class="section-index">03</span><span>RANKED BY IMPLIED VALUE</span></div><h2>Tokenless board</h2><p id="boardSubhead">A relative signal from the same snapshot, not a market-cap target.</p></div>
+            <div class="board-metrics"><div><span>PROTOCOLS</span><b id="rowCount">—</b></div><div><span>WATCHLIST</span><b id="watchCountSmall">—</b></div><div><span>MODEL</span><b id="modelVersion">—</b></div></div>
+          </div>
+          <div class="view-tabs" role="tablist" aria-label="Radar views">
+            <button class="view-tab active" type="button" data-tab="radar" role="tab" aria-selected="true"><span class="tab-symbol">◉</span> Tokenless radar</button>
+            <button class="view-tab" type="button" data-tab="live" role="tab" aria-selected="false"><span class="tab-symbol">↗</span> Live tokens <span class="tab-count" id="liveTabCount">—</span></button>
+          </div>
+          <div class="table-toolbar">
+            <div class="result-summary"><span class="result-dot"></span><span id="resultSummary">Scanning snapshot…</span></div>
+            <label class="sort-control"><span>SORT</span><select id="sortSelect"><option value="value">Implied value</option><option value="tvl">TVL</option><option value="growth">7d growth</option><option value="age">Time tracked</option></select></label>
+          </div>
+          <div class="table-frame">
+            <table>
+              <thead id="tableHead"><tr><th class="rank-col">RANK</th><th>PROTOCOL</th><th>TVL</th><th>7D CHANGE</th><th class="value-col">IMPLIED VALUE</th><th class="open-col"></th></tr></thead>
+              <tbody id="boardRows"></tbody>
+            </table>
+            <div class="empty-state" id="emptyState" hidden><span>⌕</span><b>No matches in this snapshot.</b><p>Try a different chain, sector or search.</p></div>
+          </div>
+          <div class="table-footer"><span id="pageSummary">—</span><div class="page-controls"><button id="prevPage" type="button" aria-label="Previous page">←</button><span id="pageLabel">1 / 1</span><button id="nextPage" type="button" aria-label="Next page">→</button></div></div>
+        </section>
+      </section>
+
+      <section class="method-panel" id="methodPanel" hidden>
+        <div class="method-panel-head"><div><span class="section-index">MODEL NOTES</span><h2>One signal, three inputs.</h2></div><button id="closeMethod" type="button" aria-label="Close model notes">×</button></div>
+        <div class="formula"><span>IMPLIED VALUE</span><b>TVL × 0.24 × growth × tenure</b></div>
+        <div class="method-columns"><article><span>01 / SCALE</span><h3>TVL sets the base</h3><p>We start at 24% of snapshot TVL. This is a scenario anchor, not a claim about a future float or a market price.</p></article><article><span>02 / MOMENTUM</span><h3>7-day change is bounded</h3><p>Weekly TVL change enters an exponential multiplier with a −45% floor and +75% cap. One exceptional week cannot dominate the board.</p></article><article><span>03 / TENURE</span><h3>Time adds context</h3><p>Tracked age raises the maturity multiplier from 0.70 to 1.00 over three years. Missing dates use one year and are shown as unknown.</p></article></div>
+        <p class="method-caveat">The snapshot contains no revenue, user counts, unlocks or token terms. The model cannot estimate probability or timing of issuance, and the watchlist itself can contain missing token records. Verify every protocol and risk before acting.</p>
+      </section>
+
+      <footer class="footer"><span>Signal / Radar <b>·</b> research interface</span><span>Snapshot: <strong id="footerDate">—</strong> <b>·</b> Source recorded in the sealed input</span><span>Use care. No airdrop is promised.</span></footer>
+    </main>
+  </div>
+
+  <aside class="detail-panel" id="detailPanel" aria-label="Protocol detail" aria-hidden="true"></aside>
+  <div class="scrim" id="scrim"></div>
+  <script src="../data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
