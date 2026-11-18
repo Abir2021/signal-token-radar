@@ -48,11 +48,16 @@ export function parseSnapshot(text: string): Snapshot {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('snapshot.json must be an object');
   const o = raw as Record<string, unknown>;
   if (typeof o.as_of !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(o.as_of)) throw new Error('snapshot has no valid as_of date');
-  if (typeof o.source !== 'string' || typeof o.floor_usd !== 'number' || !Array.isArray(o.protocols) || !Array.isArray(o.watchlist)) throw new Error('snapshot is missing required fields');
+  const asOfMs = Date.parse(`${o.as_of}T00:00:00Z`);
+  if (!Number.isFinite(asOfMs) || new Date(asOfMs).toISOString().slice(0, 10) !== o.as_of) throw new Error('snapshot has an impossible as_of date');
+  if (typeof o.source !== 'string' || typeof o.floor_usd !== 'number' || !Number.isFinite(o.floor_usd) || o.floor_usd < 0 || !Array.isArray(o.protocols) || !Array.isArray(o.watchlist)) throw new Error('snapshot is missing required fields or has an invalid floor_usd');
+  const seenSlugs = new Set<string>();
   const protocols: Protocol[] = o.protocols.map((value, i) => {
     if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`protocol ${i} is not an object`);
     const p = value as Record<string, unknown>;
-    if (typeof p.slug !== 'string' || typeof p.name !== 'string' || typeof p.tvl_usd !== 'number' || !Number.isFinite(p.tvl_usd)) throw new Error(`protocol ${i} lacks slug, name or TVL`);
+    if (typeof p.slug !== 'string' || !p.slug.trim() || typeof p.name !== 'string' || !p.name.trim() || typeof p.tvl_usd !== 'number' || !Number.isFinite(p.tvl_usd) || p.tvl_usd < 0) throw new Error(`protocol ${i} lacks a valid slug, name or non-negative TVL`);
+    if (seenSlugs.has(p.slug)) throw new Error(`duplicate protocol slug ${p.slug}`);
+    seenSlugs.add(p.slug);
     return {
       slug: p.slug,
       name: p.name,
@@ -67,6 +72,7 @@ export function parseSnapshot(text: string): Snapshot {
     };
   });
   const watchlist = o.watchlist.filter((x): x is string => typeof x === 'string');
+  if (watchlist.length !== o.watchlist.length || new Set(watchlist).size !== watchlist.length) throw new Error('snapshot.watchlist must contain unique protocol slugs');
   return { as_of: o.as_of, source: o.source, floor_usd: o.floor_usd as number, protocols, watchlist };
 }
 
